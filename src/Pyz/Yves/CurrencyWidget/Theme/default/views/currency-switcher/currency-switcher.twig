@@ -1,0 +1,38 @@
+{% extends view('currency-switcher', '@SprykerShop:CurrencyWidget') %}
+
+{% define data = {
+    requestUri: app.request.requestUri,
+} %}
+
+{% block body %}
+    <form method="GET" action="{{ path('currency-switch') }}">
+        {% embed molecule('custom-select') with {
+            modifiers: ['alternative'],
+            attributes: {
+                name: 'currency-iso-code',
+                'config-theme': 'alternative',
+            },
+            embed: {
+                currencies: data.currencies,
+                currentCurrency: data.currentCurrency,
+            },
+        } only %}
+            {% block selectClass %}
+                {{ parent() }} js-currency-switcher-select
+            {% endblock %}
+            {% block options %}
+                {% for currency in embed.currencies %}
+                    <option value="{{ currency.code }}" {{ (currency.code == embed.currentCurrency) ? 'selected' : ''}}>{{ currency.code | trans }}</option>
+                {% endfor %}
+            {% endblock %}
+        {% endembed %}
+
+        {% include molecule('form-handler') with {
+            attributes: {
+                'trigger-class-name': 'js-currency-switcher-select',
+            },
+        } only %}
+
+        <input type="hidden" name="referrer-url" value="{{ data.requestUri }}">
+    </form>
+{% endblock %}
